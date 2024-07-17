@@ -1,5 +1,5 @@
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folder" data-toc-modified-id="Folder-3.1"><span class="toc-item-num">3.1&nbsp;&nbsp;</span>Folder</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-3.2"><span class="toc-item-num">3.2&nbsp;&nbsp;</span>Preparation</a></span></li></ul></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#TODO-:-Floor-plan-detection" data-toc-modified-id="TODO-:-Floor-plan-detection-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>TODO : Floor plan detection</a></span></li></ul></div>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folders" data-toc-modified-id="Folders-3.1"><span class="toc-item-num">3.1&nbsp;&nbsp;</span>Folders</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-3.2"><span class="toc-item-num">3.2&nbsp;&nbsp;</span>Preparation</a></span></li><li><span><a href="#Supress-and-extract-info-using-FFT" data-toc-modified-id="Supress-and-extract-info-using-FFT-3.3"><span class="toc-item-num">3.3&nbsp;&nbsp;</span>Supress and extract info using FFT</a></span><ul class="toc-item"><li><span><a href="#Supress-grid" data-toc-modified-id="Supress-grid-3.3.1"><span class="toc-item-num">3.3.1&nbsp;&nbsp;</span>Supress grid</a></span></li><li><span><a href="#Keep-only-wall" data-toc-modified-id="Keep-only-wall-3.3.2"><span class="toc-item-num">3.3.2&nbsp;&nbsp;</span>Keep only wall</a></span></li></ul></li></ul></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#TODO-:-Floor-plan-detection" data-toc-modified-id="TODO-:-Floor-plan-detection-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>TODO : Floor plan detection</a></span></li></ul></div>
 
 # Presentation
 
@@ -19,7 +19,7 @@ Takes all images in TIFF, convert to .jpeg of same size and save in JPEG.
 Then, takes all images in JPEG and resize them to 20 percent of OG size in REDUCE.
 
 # Clean and Crop
-## Folder
+## Folders
      
         |
         +-- images
@@ -38,7 +38,11 @@ Then, takes all images in JPEG and resize them to 20 percent of OG size in REDUC
         |   |   +-- Roll_NUM
         |   |   +-- not_cropped
         |   |
-        |   +-- compress
+        |   +-- Krita_no_line
+        |   |   |
+        |   |   +-- Roll_NUM
+        |   |
+        |   +-- extract_contours
         |       |
         |       +-- Roll_NUM
         |
@@ -55,7 +59,9 @@ Needed for start :  utilis and images/OG/reduce_NUM. Other folders will be creat
 In utilis, need YOLO5v trained .pt weights for 640$\times$640 images (we tested using a nano net).
 Path to be filled in processing.py line 39 as MODEL_CNN_CROP.
 
-$\newline$
+Install needed libraries using : 
+
+        pip install -r requirements.txt 
 
 fill a reduce_NUM folder and launch using :
 
@@ -70,6 +76,23 @@ Treat images in images/ML_cropped/not_cropped as wanted. Copy to images/ML_cropp
         python3 processing.py --num_folder "NUM" --treatment "compress"
    
 Images treated and compressed are in images/compress/Roll_NUM
+
+## Supress and extract info using FFT
+DO NOT MODIFY THE IMAGE SIZE, THE FILTERING MAY NOT WORK ANYMORE.
+Made to work with ~ 2000$\times$24000 images, where wall thickness range from 3 to 10 pixels. Unwanted grid is made of lines with thickness ranging from 1 to 3 pixels.
+
+### Supress grid
+This function uses cleaned images from  images/ML_cropped/Roll_NUM. Run :
+    
+        python3 processing.py --num_folder "NUM" --treatment "extract_line"
+Images are saved in images/Krita_no_line/Roll_NUM
+
+### Keep only wall
+This function uses cleaned images from  images/ML_cropped/Roll_NUM. Run :
+    
+        python3 processing.py --num_folder "NUM" --treatment "extract_all"
+Images are saved in images/extract_contours/Roll_NUM
+
 
 # BBR - VGG16
 
