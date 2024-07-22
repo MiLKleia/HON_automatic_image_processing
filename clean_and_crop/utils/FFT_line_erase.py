@@ -3,9 +3,9 @@ import math
 import cv2 as cv
 import os
 
-import utilis.FFT_functions as FFT
-import utilis.FFT_extract as extract_func
-import utilis.clean as etal
+import utils.FFT_functions as FFT
+import utils.FFT_extract as extract_func
+import utils.clean as etal
 
 
 # Constantes

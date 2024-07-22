@@ -1,7 +1,7 @@
 import numpy as np
 import os
 import cv2 as cv
-import utilis.FFT_functions as FFT
+import utils.FFT_functions as FFT
 
 
 
