@@ -5,8 +5,8 @@ import os
 import torch
 
 
-import utils.FFT_functions as FFT
-import utils.clean  as etal
+import functions.FFT_functions as FFT
+import functions.clean  as etal
 
 
 kernel_blur =  1/(100) * np.array([[1,2,4,2,1], 

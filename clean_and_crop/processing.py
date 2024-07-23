@@ -5,13 +5,13 @@ import os
 import imutils as imutils
 import argparse
 
-import utils.FFT_functions as FFT
-import utils.yolo_crop as yolo
-import utils.sobel_crop as sobel_crop
-import utils.clean as clean
-import utils.seperate_and_compress as final_steps
-import utils.FFT_extract as extract
-import utils.FFT_line_erase as line_erase
+import functions.FFT_functions as FFT
+import functions.yolo_crop as yolo
+import functions.sobel_crop as sobel_crop
+import functions.clean as clean
+import functions.seperate_and_compress as final_steps
+import functions.FFT_extract as extract
+import functions.FFT_line_erase as line_erase
 
 
 
@@ -37,7 +37,7 @@ FOLDER_COMPRESS = FOLDER_ALL_IMAGES  + os.sep + 'compress' + os.sep + 'Roll_' + 
 FOLDER_LINE_EXTRACT = FOLDER_ALL_IMAGES + os.sep + 'Krita_no_line' + os.sep + 'Roll_' + num_folder
 FOLDER_BORDER_EXTRACT = FOLDER_ALL_IMAGES + os.sep + 'extract_contours' + os.sep + 'Roll_' + num_folder
 
-MODEL_CNN_CROP ='utilis' + os.sep + 'models' + os.sep + '640_s_40' + os.sep + 'best.pt'
+MODEL_CNN_CROP ='functions' + os.sep + 'models' + os.sep + '640_s_40' + os.sep + 'best.pt'
 
 ################################################################################ REDUCE SIZE
 
@@ -56,14 +56,14 @@ if opt.t ==  'clean_and_crop':
 
 ################################################################################ Crop ML
 
-if opt.treatment ==  'clean_and_crop': 
+if opt.t ==  'clean_and_crop': 
     yolo.YOLO_crop_folder(FOLDER_CLEAN_IMG, FOLDER_CROPPED_ML_IMG, 
                                 FOLDER_CROP_ERROR_REDO, FOLDER_CROP_CHECK, MODEL_CNN_CROP, 15)
 
 ################################################################################ Load image to redo 
 
 if opt.t ==  'redo_fill_folder': 
-    if opt.c : 
+    if not opt.c : 
         final_steps.fill_redo_folder(FOLDER_CROP_CHECK, FOLDER_CROP_ERROR_REDO, FOLDER_OG_IMG_REDUCE_SIZE )
     else : 
         final_steps.fill_redo_folder(FOLDER_CROP_CHECK, FOLDER_CROP_ERROR_REDO, FOLDER_CLEAN_IMG )

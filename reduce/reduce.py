@@ -29,3 +29,7 @@ for root, dirs, files in os.walk(JPG, topdown=False):
         temp_image = cv.resize(temp_image, (0, 0), fx=0.2, fy=0.2)
         path_out = SMALL + os.sep + name.replace('.jpg', '_reduit.jpg')
         cv.imwrite(path_out, temp_image)
+        if False :
+            red_path_out = "Architrave" + os.sep + name.replace('.jpg', '_reduit.jpg')
+            cv.imwrite(red_path_out, temp_image, [cv.IMWRITE_JPEG_QUALITY, 86])
+        

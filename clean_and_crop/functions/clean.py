@@ -1,16 +1,16 @@
 import numpy as np
 import os
 import cv2 as cv
-import utils.FFT_functions as FFT
+import functions.FFT_functions as FFT
 
 
 
 ##### ADAPT YOUR NOISY FUNCTION HERE : 
-seuil_dark = 220
+seuil_dark = 190
 
 
-func_noisy_x= np.array([0, 0.075, 0.2, 0.4 , 1])
-func_noisy_y = np.array([0, 0.3, 0.75, 1, 3])
+func_noisy_x= np.array([0, 0.025, 0.4, 5 , 1])
+func_noisy_y = np.array([0, 0.05, 0.3, 0.6, 3])
 coeff_std_noisy = np.polyfit(func_noisy_x, func_noisy_y, 3)
 
 func_dark_noisy_x= np.array([0, 0.075, 0.2, 0.4 , 1])
