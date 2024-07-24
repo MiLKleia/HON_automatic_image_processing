@@ -121,8 +121,10 @@ Weights are save in 'model.h5'.
 
 # Floor plan detection
 
-Based on https://github.com/zlzeng/DeepFloorplan/tree/master
-See the report for link to the HON dataset and more infos.
+Based on https://github.com/zlzeng/DeepFloorplan/tree/master by Zhiliang ZENG, Xianzhi LI, Ying Kin Yu, and Chi-Wing Fu, Deep Floor Plan Recognition using a Multi-task Network with Room-boundary-Guided Attention, IEEE International Conference on Computer Vision (ICCV), 2019.
+
+
+(For pepople working on the HON project, See the report for link to the HON dataset and more infos)
 
 The folder given here is an adaptation of the original one so that it is compatible with tensorflow>=2 and other up to date libraries.
 
@@ -173,8 +175,3 @@ Fill IMA_OG as in exemple then run :
 
         python3 data_create.py --da ARG --n NAME
 Where ARG is "none" by default but can be "mirror" for data augmentation purpose. NAME, the name of the dataset.
-
-
-```python
-
-```
