@@ -1,5 +1,5 @@
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folders" data-toc-modified-id="Folders-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>Folders</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Preparation</a></span></li><li><span><a href="#Supress-and-extract-info-using-FFT" data-toc-modified-id="Supress-and-extract-info-using-FFT-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Supress and extract info using FFT</a></span><ul class="toc-item"><li><span><a href="#Supress-grid" data-toc-modified-id="Supress-grid-2.3.1"><span class="toc-item-num">2.3.1&nbsp;&nbsp;</span>Supress grid</a></span></li><li><span><a href="#Keep-only-wall" data-toc-modified-id="Keep-only-wall-2.3.2"><span class="toc-item-num">2.3.2&nbsp;&nbsp;</span>Keep only wall</a></span></li></ul></li></ul></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#Floor-plan-detection" data-toc-modified-id="Floor-plan-detection-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>Floor plan detection</a></span></li></ul></div>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folders" data-toc-modified-id="Folders-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>Folders</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Preparation</a></span></li><li><span><a href="#Supress-and-extract-info-using-FFT" data-toc-modified-id="Supress-and-extract-info-using-FFT-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Supress and extract info using FFT</a></span><ul class="toc-item"><li><span><a href="#Supress-grid" data-toc-modified-id="Supress-grid-2.3.1"><span class="toc-item-num">2.3.1&nbsp;&nbsp;</span>Supress grid</a></span></li><li><span><a href="#Keep-only-wall" data-toc-modified-id="Keep-only-wall-2.3.2"><span class="toc-item-num">2.3.2&nbsp;&nbsp;</span>Keep only wall</a></span></li></ul></li></ul></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#Floor-plan-detection" data-toc-modified-id="Floor-plan-detection-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>Floor plan detection</a></span></li><li><span><a href="#YOLO-data-create" data-toc-modified-id="YOLO-data-create-6"><span class="toc-item-num">6&nbsp;&nbsp;</span>YOLO data create</a></span></li></ul></div>
 
 # Presentation
 
@@ -138,6 +138,41 @@ Checking the results with the last trained model (stored in pretrained)
 
         python3 main.py --phase "Test"
 Will fill out with the results using images from the train folder.
+
+# YOLO data create
+
+Start
+
+        |
+        +-- IMA_OG
+            |
+            +-- IMA
+            +-- MASK
+End :        
+        
+        |
+        +-- IMA_OG
+        |   |
+        |   +-- IMA
+        |   +-- MASK
+        |   
+        +-- NAME.yaml
+        |  
+        +-- coco128
+        |   |   
+        |   +-- images
+        |   |   |
+        |   |   +-- NAME
+        |   |
+        |   +-- labels
+                |
+                +-- NAME
+                
+                
+Fill IMA_OG as in exemple then run :
+
+        python3 data_create.py --da ARG --n NAME
+Where ARG is "none" by default but can be "mirror" for data augmentation purpose. NAME, the name of the dataset.
 
 
 ```python
