@@ -1,6 +1,5 @@
 import numpy as np
- 
-# use for index 2 rgb
+
 floorplan_room_map = {
 	0: [  0,  0,  0], # background
 	1: [192,192,224], # closet
@@ -60,7 +59,7 @@ floorplan_fuse_map_figure = {
 def rgb2ind(im, color_map=floorplan_room_map):
 	ind = np.zeros((im.shape[0], im.shape[1]))
 
-	for i, rgb in color_map.items():
+	for i, rgb in floorplan_fuse_map.items():   
 		ind[(im==rgb).all(2)] = i
 
 	# return ind.astype(int) # int => int64

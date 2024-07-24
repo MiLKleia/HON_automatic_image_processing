@@ -85,7 +85,7 @@ def write_record(paths, name='dataset.tfrecords'):
 	for i in range(len(paths)):
 		# Load the image
 		image, wall, close, room_ind, close_wall = load_raw_images(paths[i])
-
+		
 		# Create a feature
 		feature = {'image': _bytes_feature(tf.compat.as_bytes(image.tostring())),
 					'wall': _bytes_feature(tf.compat.as_bytes(wall.tostring())),
@@ -301,7 +301,8 @@ def load_bd_rm_images(path):
 	image = cv.cvtColor(image, cv.COLOR_BGR2RGB)
 	close = cv.imread(paths[2], 0)
 	room = cv.imread(paths[3])
-	room = cv.cvtColor(room, cv.COLOR_BGR2RGB)
+	room = cv.cvtColor(room, cv.COLOR_BGR2RGB)	
+	
 	close_wall = cv.imread(paths[4], 0)
 	
 	image = cv.resize(image, (512,512))
@@ -343,6 +344,7 @@ def write_bd_rm_record(paths, name='dataset.tfrecords'):
 	for i in range(len(paths)):
 		# Load the image
 		image, cw_ind, room_ind, d_ind = load_bd_rm_images(paths[i])
+
 
 		# Create a feature
 		feature = {'image': _bytes_feature(tf.compat.as_bytes(image.tostring())),

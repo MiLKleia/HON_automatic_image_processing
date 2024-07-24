@@ -212,27 +212,22 @@ class MODEL(Network):
 
 			[out1, out2] = sess.run([rooms, close_walls], feed_dict={x: im_x})
 			if resize:
-				# out1 = imresize(np.squeeze(out1), (im.shape[0], im.shape[1])) # resize back 
-				# out2 = imresize(np.squeeze(out2), (im.shape[0], im.shape[1])) # resize back 
 				out1_rgb = ind2rgb(np.squeeze(out1))
-				#out1_rgb = imresize(out1_rgb, (im.shape[0], im.shape[1])) # resize back 
 				out1_rgb = cv.resize(out1_rgb, (im.shape[1], im.shape[0]))
 				
-				out2_rgb = ind2rgb(np.squeeze(out2), color_map=floorplan_boundary_map)
-				#out2_rgb = imresize(out2_rgb, (im.shape[0], im.shape[1])) # resize back 
+				out2_rgb = ind2rgb(np.squeeze(out2), color_map=floorplan_boundary_map_figure)
 				out2_rgb = cv.resize(out2_rgb, (im.shape[1], im.shape[0]))
 				
 			else:
 				out1_rgb = ind2rgb(np.squeeze(out1))
-				out2_rgb = ind2rgb(np.squeeze(out2), color_map=floorplan_boundary_map)
+				out2_rgb = ind2rgb(np.squeeze(out2), color_map=floorplan_boundary_map_figure)
 
 			if merge:
 				out1 = np.squeeze(out1)
 				out2 = np.squeeze(out2)
 				out1[out2==2] = 10
 				out1[out2==1] = 9
-				# out3_rgb = ind2rgb(out1, color_map=floorplan_fuse_map_figure) # use for present
-				out3_rgb = ind2rgb(out1, color_map=floorplan_fuse_map) # use for present
+				out3_rgb = ind2rgb(out1, color_map=floorplan_boundary_map_figure) # use for present
 
 			name = p.split('/')[-1]	
 			save_path1 = os.path.join(room_dir, name.split('.jpg')[0]+'_rooms.png')		
@@ -321,7 +316,7 @@ class MODEL(Network):
 		# iu = np.diag(hist) / (hist.sum(1) + 1e-6 + hist.sum(0) - np.diag(hist))			
 		mean_acc9 = (np.nansum(mean_acc[:7])+mean_acc[-2]+mean_acc[-1]) / 9.
 		
-		with open('EVAL_'+self.log_dir + '.txt', 'a') as f:
+		with open('EVAL_'+self.log_dir, 'a') as f:
 			f.write('Model at epoch {}: overall accuracy = {:.4}, mean_acc = {:.4}'.format(epoch, overall_acc, mean_acc9))
 			for i in range(mean_acc.shape[0]):
 				if i not in [7 ,8]: # ingore class 7 & 8 
