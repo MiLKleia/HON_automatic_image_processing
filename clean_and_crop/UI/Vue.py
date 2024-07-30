@@ -117,9 +117,9 @@ class EtalFunction(object):
         out_str.append(str_x[:-1])
         out_str.append(str_y[:-1])
         if self.dark : 
-            file_ = 'functions/function_dark.csv'
+            file_ = 'functions' +os.sep + 'function_dark.csv'
         else : 
-            file_ = 'functions/function.csv'
+            file_ = 'functions' +os.sep + 'function.csv'
         with open(file_, 'w') as outfile:
             outfile.write('\n'.join(str(i) for i in out_str))   
         
