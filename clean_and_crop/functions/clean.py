@@ -5,17 +5,16 @@ import functions.FFT_functions as FFT
 
 
 
-##### ADAPT YOUR NOISY FUNCTION HERE : 
+#####  Use set_set_function.py to adapt function
 seuil_dark = 190
 
+Data_Image = pd.read_csv('function.csv',sep=";", on_bad_lines='skip') 
+func_std = Data_Image.to_numpy()
+coeff_std_noisy = np.polyfit(func_std[0], func_std[1], 3)
 
-func_noisy_x= np.array([0, 0.025, 0.4, 5 , 1])
-func_noisy_y = np.array([0, 0.05, 0.3, 0.6, 3])
-coeff_std_noisy = np.polyfit(func_noisy_x, func_noisy_y, 3)
-
-func_dark_noisy_x= np.array([0, 0.075, 0.2, 0.4 , 1])
-func_dark_noisy_y = np.array([0, 0.3, 0.75, 1, 3])
-coeff_dark_noisy = np.polyfit(func_dark_noisy_x, func_dark_noisy_y, 3)
+Data_Image = pd.read_csv('function_dark.csv',sep=";", on_bad_lines='skip') 
+func_dark = Data_Image.to_numpy()
+coeff_dark_noisy = np.polyfit(func_dark[0], func_dark[1], 3)
 
 """
 func_noisy_x=  np.array([0, 0.05, 0.4, 0.5, 0.62, 0.75, 1])

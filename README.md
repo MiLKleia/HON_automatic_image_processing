@@ -1,5 +1,5 @@
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folders" data-toc-modified-id="Folders-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>Folders</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Preparation</a></span></li><li><span><a href="#Supress-and-extract-info-using-FFT" data-toc-modified-id="Supress-and-extract-info-using-FFT-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Supress and extract info using FFT</a></span><ul class="toc-item"><li><span><a href="#Supress-grid" data-toc-modified-id="Supress-grid-2.3.1"><span class="toc-item-num">2.3.1&nbsp;&nbsp;</span>Supress grid</a></span></li><li><span><a href="#Keep-only-wall" data-toc-modified-id="Keep-only-wall-2.3.2"><span class="toc-item-num">2.3.2&nbsp;&nbsp;</span>Keep only wall</a></span></li></ul></li></ul></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#Floor-plan-detection" data-toc-modified-id="Floor-plan-detection-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>Floor plan detection</a></span></li><li><span><a href="#YOLO-data-create" data-toc-modified-id="YOLO-data-create-6"><span class="toc-item-num">6&nbsp;&nbsp;</span>YOLO data create</a></span></li></ul></div>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folders-For-Clean-and-Crop" data-toc-modified-id="Folders-For-Clean-and-Crop-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>Folders For Clean and Crop</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Preparation</a></span></li><li><span><a href="#Supress-and-extract-info-using-FFT" data-toc-modified-id="Supress-and-extract-info-using-FFT-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Supress and extract info using FFT</a></span><ul class="toc-item"><li><span><a href="#Supress-grid" data-toc-modified-id="Supress-grid-2.3.1"><span class="toc-item-num">2.3.1&nbsp;&nbsp;</span>Supress grid</a></span></li><li><span><a href="#Keep-only-wall" data-toc-modified-id="Keep-only-wall-2.3.2"><span class="toc-item-num">2.3.2&nbsp;&nbsp;</span>Keep only wall</a></span></li></ul></li><li><span><a href="#Set-Function" data-toc-modified-id="Set-Function-2.4"><span class="toc-item-num">2.4&nbsp;&nbsp;</span>Set Function</a></span></li></ul></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#Floor-plan-detection" data-toc-modified-id="Floor-plan-detection-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>Floor plan detection</a></span></li><li><span><a href="#YOLO-data-create" data-toc-modified-id="YOLO-data-create-6"><span class="toc-item-num">6&nbsp;&nbsp;</span>YOLO data create</a></span></li></ul></div>
 
 # Presentation
 
@@ -9,7 +9,7 @@ Aim was to automate the cleaning and cropping of numerisations of plans.
 Second aim was to find a way to detect the room of a floor plan [unfinished].
 
 # Clean and Crop
-## Folders
+## Folders For Clean and Crop
      
         |
         +-- images
@@ -86,6 +86,17 @@ This function uses cleaned images from  images/ML_cropped/Roll_NUM. Run :
 Images are saved in images/extract_contours/Roll_NUM
 
 
+
+## Set Function
+
+install tkinter and run :
+
+        python3 set_functions.py
+A window will open. Top left, select 'outils/trouver approximation'.
+On the grid, you can now draw points and an approximation function will be displayed. By default, 4 points are needed to get an approximation. Points can be drawn outside the grid. You can change that number at the the bottom of the window by selecting a value between 2 and 9. When the display function is acceptable, select 'outils/sauvegarder dernier approximation'. A csv file will be save in the functions folder. You can select if the function should be use on dark images or standard images by selecting the 'dark images ?' toggle and repeating thje same steps.
+
+Before runnig processing.py, csv files for both function need to exist in the functions folder. Do not delete default files or older files before running, even if not needed. If missing, set_function.py will recreate those files.
+
 # Reduce
 
         |
@@ -161,12 +172,12 @@ End :
         +-- NAME.yaml
         |  
         +-- coco128
-        |   |   
-        |   +-- images
-        |   |   |
-        |   |   +-- NAME
-        |   |
-        |   +-- labels
+            |   
+            +-- images
+            |   |
+            |   +-- NAME
+            |
+            +-- labels
                 |
                 +-- NAME
                 
