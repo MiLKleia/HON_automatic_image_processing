@@ -60,7 +60,10 @@ fill a reduce_NUM folder and launch using :
 Check crop and clean in images/ML_cropped/check. Delete unsatysfactory from check and run : 
 
         python3 processing.py --num_folder "NUM" --treatment "redo_fill_folder"
+In order to use other cleaning function, follow see Set Function to initialize the function and run :
 
+
+        python3 processing.py --num_folder "NUM" --treatment "redo_fill_folder" --spe True
 Treat images in images/ML_cropped/not_cropped as wanted. Copy to images/ML_cropped/Roll_NUM and run : 
 
         python3 processing.py --num_folder "NUM" --treatment "compress"
@@ -93,9 +96,11 @@ install tkinter and run :
 
         python3 set_functions.py
 A window will open. Top left, select 'outils/trouver approximation'.
-On the grid, you can now draw points and an approximation function will be displayed. By default, 4 points are needed to get an approximation. Points can be drawn outside the grid. You can change that number at the the bottom of the window by selecting a value between 2 and 9. When the display function is acceptable, select 'outils/sauvegarder dernier approximation'. A csv file will be save in the functions folder. You can select if the function should be use on dark images or standard images by selecting the 'dark images ?' toggle and repeating thje same steps.
+On the grid, you can now draw points and an approximation function will be displayed. By default, 4 points are needed to get an approximation. Points can be drawn outside the grid. You can change that number at the the bottom of the window by selecting a value between 2 and 9. When the display function is acceptable, select 'outils/sauvegarder dernier approximation'. A csv file will be save in the functions folder. You can select if the function should be use on dark images or standard images by selecting the 'Fonction pour les images sombres' toggle and repeating thje same steps.
 
 Before runnig processing.py, csv files for both function need to exist in the functions folder. Do not delete default files or older files before running, even if not needed. If missing, set_function.py will recreate those files.
+
+Select an image using "Images/Choisir image de test" and either click on "afficher image" or "Images/prévisualiser la dernière fonction" to observe results you can except using the last plot function.
 
 # Reduce
 

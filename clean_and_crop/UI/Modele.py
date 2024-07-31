@@ -54,8 +54,6 @@ class Horizontale(Courbe):
    
 
 class nouvelleApprox(Courbe):
-        
-
     def ajouterControle(self, point):
         """ Ajoute un point de controle a l'horizontale.
         Ne fait rien si les 2 points existent deja. """
