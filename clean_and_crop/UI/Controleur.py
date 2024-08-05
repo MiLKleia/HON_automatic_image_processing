@@ -42,6 +42,14 @@ class ControleurCourbes(object):
         self.ajouterCourbe(approx)
         return approx.ajouterControle
         
+    def nouvelleApprox_points_no_limit(self, num_click, points):
+        """ Ajoute une nouvelle  
+        Retourne une fonction permettant d'ajouter les points de controle. """
+        
+        approx = Modele.Approx_point_no_limit(num_click, points)
+        self.ajouterCourbe(approx)
+        return approx.ajouterControle
+        
     def saveApprox(self):
         """ Ajoute une nouvelle  
         Retourne une fonction permettant d'ajouter les points de controle. """

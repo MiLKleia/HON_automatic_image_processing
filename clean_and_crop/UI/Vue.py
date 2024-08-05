@@ -29,7 +29,7 @@ class EtalFunction(object):
         self.last_mouse_position = None 
         self.all_points = []
         self.dark = False
-        self.num_click = 4
+        self.num_click = 15
         self.path_to_ref = ""
 
     def display_error(self, val_error):
@@ -62,7 +62,7 @@ class EtalFunction(object):
         """ Bouton droit : termine l'outils courant et déselectionne le point. """
         self.outilsCourant = None
         self.selected_point_index = None
-        self.last_mouse_position = None5
+        self.last_mouse_position = None
         self.majAffichage()
         
     def callbackNouveau(self):
@@ -121,23 +121,25 @@ class EtalFunction(object):
 
     def callbackApprox(self):
         """ Initialise l'outils courant pour ajouter d'une nouvelle horizontale. """
+        self.controleur = Controleur.ControleurCourbes()
+        self.majAffichage()
+        self.all_points = []
         self.outilsCourant = self.controleur.nouvelleApprox(self.num_click)
         
     def callbackApprox_save(self):
         """ enregistre les données de la fonction pour être utilisé dans l'automatisation """
 
-        if len(self.all_points) < self.num_click : 
+        if len(self.all_points) < 1: 
             self.display_error(ERROR_NO_FUNCTION)
         else :  
-            num_points = len(self.all_points) 
-            max_full = num_points-(num_points%self.num_click)
-            selection = self.all_points[max_full-self.num_click:max_full]  
+            #num_points = len(self.all_points) 
+            #max_full = num_points-(num_points%self.num_click) 
             out_str = []
             str_title = ""
             str_x = ""
             str_y = ""
             n = self.n
-            for x, y in selection:
+            for x, y in self.all_points:
                 x = (x- self.largeur//n)/((n-1)*self.largeur//n - self.largeur//n )
                 y = abs((n-1)*self.hauteur//n -y)/((n-1)*self.hauteur//n - self.hauteur//n )
                 str_title += 'val;'
@@ -179,7 +181,7 @@ class EtalFunction(object):
     def prepare_and_show_image(self):
         if len(self.path_to_ref) < 3 : 
             self.display_error(ERROR_NO_FILE)
-        elif len(self.all_points) < self.num_click : 
+        elif len(self.all_points) < 1 : 
             self.display_error(ERROR_NO_FUNCTION)
         else : 
             self.show_image()
@@ -191,13 +193,13 @@ class EtalFunction(object):
             self.display_error(ERROR_FILE_IS_NO_IMA)
         else : 
             num_points = len(self.all_points)
-            max_full = num_points-(num_points%self.num_click)
-            selection = self.all_points[max_full-self.num_click:max_full]
+            #max_full = num_points-(num_points%self.num_click)
+            #selection = self.all_points[max_full-self.num_click:max_full]
             X = np.zeros((num_points))
             Y = np.zeros((num_points))
             n = self.n
             i = 0
-            for x, y in selection:
+            for x, y in self.all_points:
                 X[i] = (x- self.largeur//n)/((n-1)*self.largeur//n - self.largeur//n )
                 Y[i] = abs((n-1)*self.hauteur//n -y)/((n-1)*self.hauteur//n - self.hauteur//n ) 
                 i += 1  
@@ -212,7 +214,11 @@ class EtalFunction(object):
                 display_error(10)
         
              
-
+    def findApprox_no_fixe_num_points(self):
+        self.outilsCourant = self.controleur.nouvelleApprox_points_no_limit(num_click = len(self.all_points),
+                                                                                      points = self.all_points)
+        self.majAffichage()
+    
 
 
 
@@ -260,7 +266,7 @@ class EtalFunction(object):
         cb = tkinter.Checkbutton(fenetre, text = "Fonction pour les images sombres", variable = self.dark)
         cb.bind("<Button-1>", self.getBool)
         cb.pack()
-        
+        """
         num_click_poss = ('2', '3', '4', '5', '6', '7', '8', '9')
         var = tkinter.Variable(value=num_click_poss)
         listbox = tkinter.Listbox(fenetre, listvariable=var, height=1, selectmode=tkinter.EXTENDED)
@@ -270,7 +276,7 @@ class EtalFunction(object):
         scrollbar = tkinter.Scrollbar(fenetre, orient=tkinter.HORIZONTAL, command=listbox.yview)
         listbox['yscrollcommand'] = scrollbar.set
         scrollbar.pack(side=tkinter.LEFT, expand=True, fill=tkinter.Y)
-        
+        """
         button_new_approx = tkinter.Button(fenetre, 
                    text="nouvelle fonction", 
                    command=self.callbackApprox,
@@ -311,8 +317,30 @@ class EtalFunction(object):
                    overrelief="raised",
                    width=10,
                    wraplength=150)
+        button_find_approx = tkinter.Button(fenetre, 
+                   text="trouver fonction", 
+                   command=self.findApprox_no_fixe_num_points,
+                   activebackground="blue", 
+                   activeforeground="white",
+                   anchor="center",
+                   bd=3,
+                   bg="lightgray",
+                   cursor="hand2",
+                   disabledforeground="gray",
+                   fg="black",
+                   font=("Arial", 10),
+                   height=1,
+                   highlightbackground="black",
+                   highlightcolor="green",
+                   highlightthickness=2,
+                   justify="center",
+                   overrelief="raised",
+                   width=12,
+                   wraplength=150)
         button_new_approx.pack(side=tkinter.LEFT)
+        button_find_approx.pack(side=tkinter.LEFT)
         button_show.pack(side=tkinter.RIGHT)
+        
 
 
         # Image : structure contenant les donnees de l'image manipule
