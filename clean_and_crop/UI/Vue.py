@@ -30,6 +30,7 @@ class EtalFunction(object):
         self.all_points = []
         self.dark = False
         self.num_click = 15
+        self.last_click_function = 0
         self.path_to_ref = ""
 
     def display_error(self, val_error):
@@ -70,6 +71,7 @@ class EtalFunction(object):
         self.controleur = Controleur.ControleurCourbes()
         self.majAffichage()
         self.all_points = []
+        self.last_click_function = 0
         
     def majAffichage(self):
         """ Met a jour l'affichage.. """
@@ -132,14 +134,15 @@ class EtalFunction(object):
         if len(self.all_points) < 1: 
             self.display_error(ERROR_NO_FUNCTION)
         else :  
-            #num_points = len(self.all_points) 
-            #max_full = num_points-(num_points%self.num_click) 
+        
+            num_points = len(self.all_points) 
+            selection = self.all_points[:self.last_click_function]
             out_str = []
             str_title = ""
             str_x = ""
             str_y = ""
             n = self.n
-            for x, y in self.all_points:
+            for x, y in selection:
                 x = (x- self.largeur//n)/((n-1)*self.largeur//n - self.largeur//n )
                 y = abs((n-1)*self.hauteur//n -y)/((n-1)*self.hauteur//n - self.hauteur//n )
                 str_title += 'val;'
@@ -194,12 +197,12 @@ class EtalFunction(object):
         else : 
             num_points = len(self.all_points)
             #max_full = num_points-(num_points%self.num_click)
-            #selection = self.all_points[max_full-self.num_click:max_full]
+            selection = self.all_points[:self.last_click_function]
             X = np.zeros((num_points))
             Y = np.zeros((num_points))
             n = self.n
             i = 0
-            for x, y in self.all_points:
+            for x, y in selection:
                 X[i] = (x- self.largeur//n)/((n-1)*self.largeur//n - self.largeur//n )
                 Y[i] = abs((n-1)*self.hauteur//n -y)/((n-1)*self.hauteur//n - self.hauteur//n ) 
                 i += 1  
@@ -217,6 +220,7 @@ class EtalFunction(object):
     def findApprox_no_fixe_num_points(self):
         self.outilsCourant = self.controleur.nouvelleApprox_points_no_limit(num_click = len(self.all_points),
                                                                                       points = self.all_points)
+        self.last_click_function = len(self.all_points)                                                                              
         self.majAffichage()
     
 
