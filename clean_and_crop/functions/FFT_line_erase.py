@@ -21,6 +21,11 @@ zeros = (0,0,0)
 
 
 def line_erase_files_in_folder(path_in, path_out, resize_ratio):
+    if resize_ratio == 1 :
+        USE_PARAM_BIG = True
+    else : 
+        USE_PARAM_BIG = False
+
     if not os.path.exists(path_out):
         os.makedirs(path_out)
         
@@ -31,13 +36,15 @@ def line_erase_files_in_folder(path_in, path_out, resize_ratio):
             temp_image = cv.cvtColor(temp_image, cv.COLOR_BGR2GRAY)
             image = cv.resize(temp_image, (0, 0), fx=resize_ratio, fy=resize_ratio)
             
-            out_ima = line_erase_image_using_FFT(image)
+            
+            
+            out_ima = line_erase_image_using_FFT(image, USE_PARAM_BIG)
             cv.imwrite(path_out + os.sep + name, out_ima)
     return 0       
 
 
 
-def line_erase_image_using_FFT(image):
+def line_erase_image_using_FFT(image, BIG_IMA):
     u, v = image.shape
     ima = cv.filter2D(image, -1, kernel_sharp)
     kernel = np.ones((2,2), np.uint8)
@@ -56,14 +63,21 @@ def line_erase_image_using_FFT(image):
     # filtering the small and repeteted lines
     u_filt, v_filt = ima_mag.shape
     filter_ = np.zeros((u_filt, v_filt))
-
-    h=int(8*u_filt//11)
-    w = 25
+    
+    if BIG_IMA : 
+        h=int(8*u_filt//11)
+        w = 25
+        radius = 900
+    else : 
+        h=int(8*u_filt//11)
+        w = 20
+        radius = 600
+            
     cv.line(filter_, [u_filt//2 -h,v_filt//2], 
                       [u_filt//2 +h,v_filt//2], ones, w) 
     cv.line(filter_, [u_filt//2,v_filt//2-h], 
                       [u_filt//2,v_filt//2+h], ones, w)
-    radius = 900
+    
     cv.circle(filter_, [u_filt//2,v_filt//2], radius, zeros, -1)
 
     filt_ima = np.multiply(ima_mag, filter_)

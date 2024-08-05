@@ -32,14 +32,23 @@ func_seuil_noise = np.polyfit(x, y_seuil_noise, 5)
 
 
 def extract_border_files_in_folder(path_in, path_out, resize_ratio, KEEP_LINE = True, SHOW_BOTH_IMAGES = False):
+    if resize_ratio == 1 :
+        USE_PARAM_BIG = True
+    else : 
+        USE_PARAM_BIG = False
+    
     if not os.path.exists(path_out):
         os.makedirs(path_out)
-    filesname = YOLO_list_to_extract(path_in)
+    #filesname = YOLO_list_to_extract(path_in)
+    filesname = []
+    for root, dirs, files in os.walk(path_in, topdown=False):
+        for name in files:
+            filesname.append(name)
+            
     for name in filesname:
         temp_image = cv.imread(path_in + os.sep + name, 0)
         image = cv.resize(temp_image, (0, 0), fx=resize_ratio, fy=resize_ratio)
-         
-        out_ima = border_extract_by_noise_and_lines_addition(image, KEEP_LINE)
+        out_ima = border_extract_by_noise_and_lines_addition(image, KEEP_LINE, USE_PARAM_BIG )
         
         if SHOW_BOTH_IMAGES : 
             u,v = image.shape
@@ -75,7 +84,7 @@ def YOLO_list_to_extract(folder):
 
 
 
-def border_extract_by_noise_and_lines_addition(image, KEEP_LINE):
+def border_extract_by_noise_and_lines_addition(image, KEEP_LINE, BIG_IMA):
     image = cv.filter2D(image, -1, kernel_sharp)
 
     u, v = image.shape
@@ -91,8 +100,12 @@ def border_extract_by_noise_and_lines_addition(image, KEEP_LINE):
     # selecting the noise
     u_filt, v_filt = ima_mag.shape
     filter_ = np.ones((u_filt, v_filt))
-    h=int(u_filt//4)
-    w = int(u_filt//86)
+    if BIG_IMA : 
+        h=int(u_filt//4)
+        w = int(u_filt//86)
+    else : 
+        h=int(u_filt//4)
+        w = int(u_filt//86)
     cv.line(filter_, [u_filt//2 -h,v_filt//2], 
                       [u_filt//2 +h,v_filt//2], zeros, w) 
     cv.line(filter_, [u_filt//2,v_filt//2-h], 

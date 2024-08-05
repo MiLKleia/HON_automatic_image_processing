@@ -2,17 +2,17 @@ import numpy as np
 import os
 import cv2 as cv
 import functions.FFT_functions as FFT
-
+import pandas as pd
 
 
 #####  Use set_set_function.py to adapt function
 seuil_dark = 190
 
-Data_Image = pd.read_csv('function.csv',sep=";", on_bad_lines='skip') 
+Data_Image = pd.read_csv('functions'+os.sep+'function.csv',sep=";", on_bad_lines='skip') 
 func_std = Data_Image.to_numpy()
 coeff_std_noisy = np.polyfit(func_std[0], func_std[1], 3)
 
-Data_Image = pd.read_csv('function_dark.csv',sep=";", on_bad_lines='skip') 
+Data_Image = pd.read_csv('functions'+os.sep+'function_dark.csv',sep=";", on_bad_lines='skip') 
 func_dark = Data_Image.to_numpy()
 coeff_dark_noisy = np.polyfit(func_dark[0], func_dark[1], 3)
 
@@ -76,13 +76,13 @@ def folder_krita_clean_line_keep(in_path, out_path, noisy = False):
                 temp_image = krita_etalonnage_line_keep(temp_image)
             elif np.quantile(temp_image, 0.7) > seuil and noisy :
                 #noisy function
-                temp_image = apply_polynomial_function(temp_image, 0, coeff_std_noisy[0] , coeff_std_noisy[1] , coeff_std_noisy[2], 0)
+                temp_image = apply_polynomial_function(temp_image, 0, coeff_std_noisy[0] , coeff_std_noisy[1] , coeff_std_noisy[2], coeff_std_noisy[3])
             elif np.quantile(temp_image, 0.3) > 130 and not noisy:
                 # mixed function
                 temp_image = apply_polynomial_function(temp_image, 0, -3.67725,  3.52125, 1.15599, 0)
             elif noisy:
                 #dark function
-                temp_image = apply_polynomial_function(temp_image, 0, coeff_dark_noisy[0] , coeff_dark_noisy[1] , coeff_dark_noisy[2], 0)
+                temp_image = apply_polynomial_function(temp_image, 0, coeff_dark_noisy[0] , coeff_dark_noisy[1] , coeff_dark_noisy[2], coeff_dark_noisy[3])
             else : temp_image = apply_polynomial_function(temp_image, 0, coeff_dark[0] , coeff_dark[1] , coeff_dark[2], 0)
             string_name += os.sep + name
             cv.imwrite(string_name, temp_image)

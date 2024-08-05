@@ -1,5 +1,5 @@
 <h1>Table of Contents<span class="tocSkip"></span></h1>
-<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folders-For-Clean-and-Crop" data-toc-modified-id="Folders-For-Clean-and-Crop-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>Folders For Clean and Crop</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Preparation</a></span></li><li><span><a href="#Supress-and-extract-info-using-FFT" data-toc-modified-id="Supress-and-extract-info-using-FFT-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Supress and extract info using FFT</a></span><ul class="toc-item"><li><span><a href="#Supress-grid" data-toc-modified-id="Supress-grid-2.3.1"><span class="toc-item-num">2.3.1&nbsp;&nbsp;</span>Supress grid</a></span></li><li><span><a href="#Keep-only-wall" data-toc-modified-id="Keep-only-wall-2.3.2"><span class="toc-item-num">2.3.2&nbsp;&nbsp;</span>Keep only wall</a></span></li></ul></li><li><span><a href="#Set-Function" data-toc-modified-id="Set-Function-2.4"><span class="toc-item-num">2.4&nbsp;&nbsp;</span>Set Function</a></span></li></ul></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#Floor-plan-detection" data-toc-modified-id="Floor-plan-detection-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>Floor plan detection</a></span></li><li><span><a href="#YOLO-data-create" data-toc-modified-id="YOLO-data-create-6"><span class="toc-item-num">6&nbsp;&nbsp;</span>YOLO data create</a></span></li></ul></div>
+<div class="toc"><ul class="toc-item"><li><span><a href="#Presentation" data-toc-modified-id="Presentation-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Presentation</a></span></li><li><span><a href="#Clean-and-Crop" data-toc-modified-id="Clean-and-Crop-2"><span class="toc-item-num">2&nbsp;&nbsp;</span>Clean and Crop</a></span><ul class="toc-item"><li><span><a href="#Folders-For-Clean-and-Crop" data-toc-modified-id="Folders-For-Clean-and-Crop-2.1"><span class="toc-item-num">2.1&nbsp;&nbsp;</span>Folders For Clean and Crop</a></span></li><li><span><a href="#Preparation" data-toc-modified-id="Preparation-2.2"><span class="toc-item-num">2.2&nbsp;&nbsp;</span>Preparation</a></span></li><li><span><a href="#Supress-and-extract-info-using-FFT" data-toc-modified-id="Supress-and-extract-info-using-FFT-2.3"><span class="toc-item-num">2.3&nbsp;&nbsp;</span>Supress and extract info using FFT</a></span><ul class="toc-item"><li><span><a href="#Supress-grid" data-toc-modified-id="Supress-grid-2.3.1"><span class="toc-item-num">2.3.1&nbsp;&nbsp;</span>Supress grid</a></span></li><li><span><a href="#Keep-only-wall" data-toc-modified-id="Keep-only-wall-2.3.2"><span class="toc-item-num">2.3.2&nbsp;&nbsp;</span>Keep only wall</a></span></li></ul></li><li><span><a href="#Set-Function" data-toc-modified-id="Set-Function-2.4"><span class="toc-item-num">2.4&nbsp;&nbsp;</span>Set Function</a></span></li></ul></li><li><span><a href="#Clean,-Crop,-Erase-and-Extract-with-UI" data-toc-modified-id="Clean,-Crop,-Erase-and-Extract-with-UI-3"><span class="toc-item-num">3&nbsp;&nbsp;</span>Clean, Crop, Erase and Extract with UI</a></span></li><li><span><a href="#Reduce" data-toc-modified-id="Reduce-4"><span class="toc-item-num">4&nbsp;&nbsp;</span>Reduce</a></span></li><li><span><a href="#BBR---VGG16" data-toc-modified-id="BBR---VGG16-5"><span class="toc-item-num">5&nbsp;&nbsp;</span>BBR - VGG16</a></span></li><li><span><a href="#YOLO-data-create" data-toc-modified-id="YOLO-data-create-6"><span class="toc-item-num">6&nbsp;&nbsp;</span>YOLO data create</a></span></li></ul></div>
 
 # Presentation
 
@@ -102,6 +102,16 @@ Before runnig processing.py, csv files for both function need to exist in the fu
 
 Select an image using "Images/Choisir image de test" and either click on "afficher image" or "Images/prévisualiser la dernière fonction" to observe results you can except using the last plot function.
 
+# Clean, Crop, Erase and Extract with UI
+
+In order to do the same actions as the one explained in part 2 with minimal use of the terminal, run 
+
+        python3 automatic_processing_UI.py
+A window will open and you will be able to complete the same tasks. 
+Note that you can select any folder this time (from the folder). All new folders will take the same name as the original one. All actions from 2nd line must be done in order (left to right) as they need the resulting folders of the previous actions to be run (otherwise, they will just return nothing). You can select the path to your YOLO model in 'Chemins/Chooisir le modèle YOLO'
+
+Action from 3rd line are run using the folder selected by the user. Those functions were optimised for images that are cleaned and cropped. Results may vary on other types of images. Images must be greyscale/ will be read as greyscale.
+
 # Reduce
 
         |
@@ -134,28 +144,6 @@ To start training, run :
         python3 keras_VGG.py
         
 Weights are save in 'model.h5'.
-
-# Floor plan detection
-
-Based on https://github.com/zlzeng/DeepFloorplan/tree/master by Zhiliang ZENG, Xianzhi LI, Ying Kin Yu, and Chi-Wing Fu, Deep Floor Plan Recognition using a Multi-task Network with Room-boundary-Guided Attention, IEEE International Conference on Computer Vision (ICCV), 2019.
-
-
-(For pepople working on the HON project, See the report for link to the HON dataset and more infos)
-
-The folder given here is an adaptation of the original one so that it is compatible with tensorflow>=2 and other up to date libraries.
-
-Before running to train, create the tfrecord by running
-
-        python3 create_tfrecord.py      
-For training, run 
-
-        python3 main.py --epochs "NUM"
-Default NUM is 10, recommended is ~200. Avoid running on CPU-only.
-
-Checking the results with the last trained model (stored in pretrained)
-
-        python3 main.py --phase "Test"
-Will fill out with the results using images from the train folder.
 
 # YOLO data create
 

@@ -23,6 +23,6 @@ tqdm>=4.64.0
 ultralytics>=8.2.34  # https://ultralytics.com
 pandas>=1.1.4
 seaborn>=0.11.0
-
+tf_slim
 
 
