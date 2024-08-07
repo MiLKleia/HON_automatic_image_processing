@@ -12,6 +12,7 @@ import os
 ERROR_NO_FILE = 1
 ERROR_NO_FUNCTION = 2
 ERROR_FILE_IS_NO_IMA = 3
+ERROR_NOT_ENOUGH_POINTS = 4
 
 
 class EtalFunction(object):
@@ -37,19 +38,22 @@ class EtalFunction(object):
         root = tkinter.Tk()
         root.title('ERROR')
         root.geometry("250x170")
-        T = tkinter.Text(root, height = 5, width = 52)
+        #T = tkinter.Text(root, height = 5, width = 52)
         if val_error == ERROR_NO_FILE :
-            error_msg = """pas de fichier spécifié."""
+            error_msg = """pas de fichier spécifié \n"""
         elif val_error == ERROR_NO_FUNCTION :
-            error_msg = """pas de graphe défini"""
+            error_msg = """pas de graphe défini \n"""
         elif val_error == ERROR_FILE_IS_NO_IMA : 
-            error_msg = """l'image n'est pas du bon type ou est corrompue"""
+            error_msg = """l'image n'est pas du bon type ou est corrompue \n"""
+        elif val_error == ERROR_NOT_ENOUGH_POINTS : 
+            error_msg = """au moins 2 point nécessaires \n"""
         else :
             error_msg = """erreur inconnue"""
+        T = tkinter.Label(root)
         b2 = tkinter.Button(root, text = "Exit", command = root.destroy) 
         T.pack()
+        T.config(text = error_msg)
         b2.pack()
-        T.insert(tkinter.END, error_msg)
         tkinter.mainloop()
     
     def callbackButton1(self, event):
@@ -218,10 +222,13 @@ class EtalFunction(object):
         
              
     def findApprox_no_fixe_num_points(self):
-        self.outilsCourant = self.controleur.nouvelleApprox_points_no_limit(num_click = len(self.all_points),
+        if len(self.all_points) < 2 :
+            self.display_error(ERROR_NOT_ENOUGH_POINTS)
+        else : 
+            self.outilsCourant = self.controleur.nouvelleApprox_points_no_limit(num_click = len(self.all_points),
                                                                                       points = self.all_points)
-        self.last_click_function = len(self.all_points)                                                                              
-        self.majAffichage()
+            self.last_click_function = len(self.all_points)  
+            self.majAffichage()
     
 
 

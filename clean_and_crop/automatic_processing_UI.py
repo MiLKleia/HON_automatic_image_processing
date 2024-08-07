@@ -12,7 +12,7 @@ import functions.seperate_and_compress as final_steps
 import functions.FFT_extract as extract
 import functions.FFT_line_erase as line_erase
 
-
+import UI.Vue as Vue
     
 ERROR_NO_FILE = 1
 ERROR_NO_REDO = 2
@@ -40,17 +40,17 @@ class Folder_Processing(object):
         root = tkinter.Tk()
         root.title('ERROR')
         root.geometry("250x170")
-        T = tkinter.Text(root, height = 5, width = 52)
         if val_error == ERROR_NO_FILE :
-            error_msg = """pas de fichier spécifié."""
+            error_msg = "pas de fichier spécifié. \n"
         elif val_error == ERROR_NO_REDO :
-            error_msg = """pas de résultat de crop par YOLO"""
+            error_msg = "pas de résultat de crop par YOLO \n"
         else :
-            error_msg = """erreur inconnue"""
+            error_msg = "erreur inconnue \n"
+        T = tkinter.Label(root)
         b2 = tkinter.Button(root, text = "Exit", command = root.destroy) 
         T.pack()
+        T.config(text = error_msg)
         b2.pack()
-        T.insert(tkinter.END, error_msg)
         tkinter.mainloop()
         
     def majAffichage(self):
@@ -110,6 +110,11 @@ class Folder_Processing(object):
             T.pack()
             T.insert(tkinter.END,msg)
             tkinter.mainloop()  
+    
+    #doesn't work
+    def set_functions(self):
+        vue = Vue.EtalFunction(800, 600)  
+        vue.executer()
 
     def fill_redo_folder(self):
         if len(self.NAME_FOLDER) == 0:
@@ -202,6 +207,7 @@ class Folder_Processing(object):
 
         button1=tkinter.Button(fenetre, text="choisir dossier",command=self.choose_folder_base_reduce, width=20, height = 1)
         button1.grid(row=1,column=0)
+        
         button2=tkinter.Button(fenetre, text="nettoyer et recadrer",command=self.clean_and_crop, width=20, height = 1)
         button2.grid(row=2,column=0)
         button3=tkinter.Button(fenetre, text="remplir dossier à refaire",command=self.fill_redo_folder, width=20, height = 1)
