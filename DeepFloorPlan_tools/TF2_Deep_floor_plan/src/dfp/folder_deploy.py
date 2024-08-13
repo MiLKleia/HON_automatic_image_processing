@@ -3,13 +3,15 @@ import gc
 import os
 import sys
 from typing import List, Tuple
+from scipy import ndimage
+import skimage.segmentation 
 
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 
-from .data import convert_one_hot_to_image
+from .data import convert_one_hot_to_image, preprocess_deploy
 from .net import deepfloorplanModel
 from .net_func import deepfloorplanFunc
 from .utils.rgb_ind_convertor import (
@@ -22,7 +24,11 @@ from .utils.util import fill_break_line, flood_fill, refine_room_region
 import cv2 as cv
 
 os.environ["TF_FORCE_GPU_ALLOW_GROWTH"] = "true"
-
+floorplan_boundary_map = {
+    0: [0, 0, 0],  # background
+    1: [255, 60, 128],  # opening (door&window)
+    2: [255, 255, 255],  # wall line
+}
 
 def predict(
     model: tf.keras.Model, img: tf.Tensor, shp: np.ndarray
@@ -67,33 +73,63 @@ def predict(
 
     return logits_cw, logits_r
 
+def post_process_wall( bd_ind: np.ndarray, shp: np.ndarray):
 
-def post_process(
-    rm_ind: np.ndarray, bd_ind: np.ndarray, shp: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray]:
-    hard_c = (bd_ind > 0).astype(np.uint8)
-    # region from room prediction
-    rm_mask = np.zeros(rm_ind.shape)
-    rm_mask[rm_ind > 0] = 1
-    # region from close wall line
-    cw_mask = hard_c
-    # regine close wall mask by filling the gap between bright line
-    cw_mask = fill_break_line(cw_mask)
-    cw_mask = np.reshape(cw_mask, (*shp[:2], -1))
-    fuse_mask = cw_mask + rm_mask
-    fuse_mask[fuse_mask >= 1] = 255
-
-    # refine fuse mask by filling the hole
-    fuse_mask = flood_fill(fuse_mask)
-    fuse_mask = fuse_mask // 255
-
-    # one room one label
-    new_rm_ind = refine_room_region(cw_mask, rm_ind)
-
-    # ignore the background mislabeling
-    new_rm_ind = fuse_mask.reshape(*shp[:2], -1) * new_rm_ind
     new_bd_ind = fill_break_line(bd_ind).squeeze()
-    return new_rm_ind, new_bd_ind
+    new_bd_ind = ind2rgb(new_bd_ind.reshape(*shp[:2]), floorplan_boundary_map)
+    return new_bd_ind
+    
+    
+def post_process_room(rm_ind, bd_ind, shp, CLEAN = False):
+    
+    
+    if CLEAN : ## SLOW
+    
+        hard_c = (bd_ind > 0).astype(np.uint8)
+        # region from room prediction
+        rm_mask = np.zeros(rm_ind.shape)
+        rm_mask[rm_ind > 0] = 1
+        # region from close wall line
+        cw_mask = hard_c
+        # regine close wall mask by filling the gap between bright line
+        cw_mask = fill_break_line(cw_mask)
+        cw_mask = np.reshape(cw_mask, (*shp[:2], -1))
+        fuse_mask = cw_mask + rm_mask
+        fuse_mask[fuse_mask >= 1] = 255
+
+        fuse_mask = flood_fill(fuse_mask)
+
+        new_rm_ind = fill_fuse_mask(fuse_mask.reshape(*shp[:2]), rm_ind.reshape(*shp[:2]))
+    
+        room_final = ind2rgb(new_rm_ind.reshape(*shp[:2]))
+    else : 
+        room_final = ind2rgb(rm_ind.reshape(*shp[:2]))
+    return room_final
+
+def fill_fuse_mask(fuse, rm_ind):
+    value = 1
+    fuse = fuse.astype('uint8')
+    out = fuse
+    u, v = rm_ind.shape[:2]
+    for i in range(u):
+        for j in range(v):
+            if fuse[i, j] == 255 : 
+                mask = np.zeros(rm_ind.shape[:2])
+                fuse = skimage.segmentation.flood_fill(fuse, (i, j), value)
+                mask[fuse == value] = 1
+                
+                temp = np.multiply(mask, rm_ind)
+                uni, counts = np.unique(temp, return_counts=True)
+                room = uni[np.argwhere(counts == np.max(counts[1:]))]
+                
+                out[fuse == value] = int(room)
+                value += 1
+                
+    return out.astype('float32')
+                
+    
+    
+
 
 
 def colorize(r: np.ndarray, cw: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
@@ -107,10 +143,16 @@ def main(config: argparse.Namespace) -> np.ndarray:
 
     if config.wall : 
         path = "log_wall" + os.sep + "store" + os.sep + "model.tflite"
+        model_wall = tf.lite.Interpreter(model_path=path)
+        model_wall.allocate_tensors()
     else : 
         path = "log_room" + os.sep + "store" + os.sep + "model.tflite"
-    model = tf.lite.Interpreter(model_path=path)
-    model.allocate_tensors()
+        model_room = tf.lite.Interpreter(model_path=path)
+        model_room.allocate_tensors()
+        path_wall = "log_wall" + os.sep + "store" + os.sep + "model.tflite"
+        model_wall = tf.lite.Interpreter(model_path=path)
+        model_wall.allocate_tensors()
+
     
     if not os.path.exists(config.save_folder):
         os.makedirs(config.save_folder)   
@@ -118,54 +160,59 @@ def main(config: argparse.Namespace) -> np.ndarray:
     for root, dirs, files in os.walk(config.images, topdown=False):
         for name in files:  
             image = os.path.join(root, name)
+            
  
             img = cv.imread(image)
             img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
             shp = img.shape
             img = cv.resize(img, (512,512))
-            img = img.astype('float32')
-            img = img/255
-            img = tf.convert_to_tensor(img, dtype=tf.float32)
-            img = tf.reshape(img, [-1, 512, 512, 3])
             
+            img = tf.convert_to_tensor(img, dtype=tf.uint8)
+            img = preprocess_deploy(img)
+             
+            if config.wall :
+                input_details = model_wall.get_input_details()
+                output_details = model_wall.get_output_details()
+                model_wall.set_tensor(input_details[0]["index"], img)
+                model_wall.invoke()
+                _, cwi = 0, 1
+                if config.tfmodel == "func":
+                    ri, cwi = 1, 0
+                logits_cw = model_wall.get_tensor(output_details[cwi]["index"])
+                logits_cw = tf.convert_to_tensor(logits_cw)
+                logits_cw = tf.image.resize(logits_cw, shp[:2])
+                cw = convert_one_hot_to_image(logits_cw)[0].numpy()
+                out = post_process_wall( cw, shp)
 
-            input_details = model.get_input_details()
-            output_details = model.get_output_details()
-            model.set_tensor(input_details[0]["index"], img)
-            model.invoke()
-            ri, cwi = 0, 1
-            if config.tfmodel == "func":
-                ri, cwi = 1, 0
-            logits_r = model.get_tensor(output_details[ri]["index"])
-            logits_cw = model.get_tensor(output_details[cwi]["index"])
-            logits_cw = tf.convert_to_tensor(logits_cw)
-            logits_r = tf.convert_to_tensor(logits_r)
+            else :
+                input_details = model_wall.get_input_details()
+                output_details = model_wall.get_output_details()
+                model_wall.set_tensor(input_details[0]["index"], img)
+                model_wall.invoke()
+                _, cwi = 0, 1
+                if config.tfmodel == "func":
+                    _, cwi = 1, 0
+                logits_cw = model_wall.get_tensor(output_details[cwi]["index"])
+                logits_cw = tf.convert_to_tensor(logits_cw)
+                logits_cw = tf.image.resize(logits_cw, shp[:2])
+                cw = convert_one_hot_to_image(logits_cw)[0].numpy()
+                
+                input_details = model_room.get_input_details()
+                output_details = model_room.get_output_details()
+                model_room.set_tensor(input_details[0]["index"], img)
+                model_room.invoke()
+                ri, _ = 0, 1
+                if config.tfmodel == "func":
+                    ri, _ = 1, 0
+                logits_r = model_room.get_tensor(output_details[ri]["index"])
+                logits_r = tf.convert_to_tensor(logits_r)
     
-            logits_r = tf.image.resize(logits_r, shp[:2])
-            logits_cw = tf.image.resize(logits_cw, shp[:2])
-            r = convert_one_hot_to_image(logits_r)[0].numpy()
-            cw = convert_one_hot_to_image(logits_cw)[0].numpy()
+                logits_r = tf.image.resize(logits_r, shp[:2])
+                r = convert_one_hot_to_image(logits_r)[0].numpy()
 
-            if not config.colorize and not config.postprocess:
-                cw[cw == 1] = 9
-                cw[cw == 2] = 10
-                r[cw != 0] = 0
-                return (r + cw).squeeze()
-            elif config.colorize and not config.postprocess:
-                r_color, cw_color = colorize(r.squeeze(), cw.squeeze())
-                return r_color + cw_color
+                out = post_process_room(r, cw, shp, config.clean)
 
-            newr, newcw = post_process(r, cw, shp)
-            if not config.colorize and config.postprocess:
-                newcw[newcw == 1] = 9
-                newcw[newcw == 2] = 10
-                newr[newcw != 0] = 0
-                return newr.squeeze() + newcw
-            newr_color, newcw_color = colorize(newr.squeeze(), newcw.squeeze())
-            result = newr_color + newcw_color
-            print(shp, result.shape)
-
-            mpimg.imsave(os.path.join(config.save_folder, name), result.astype(np.uint8))
+            mpimg.imsave(os.path.join(config.save_folder, name), out.astype(np.uint8))
 
 
 
@@ -176,9 +223,8 @@ def parse_args(args: List[str]) -> argparse.Namespace:
         "--tfmodel", type=str, default="subclass", choices=["subclass", "func"]
     )
     p.add_argument("--images", type=str, default="images")
-    p.add_argument("--postprocess", action="store_true")
-    p.add_argument("--wall", type= bool, default= False)
-    p.add_argument("--colorize", action="store_true")
+    p.add_argument("--wall", action="store_true")
+    p.add_argument("--clean",action="store_true")
     p.add_argument("--save_folder", type=str, default="outputs")
     p.add_argument(
         "--feature-channels",

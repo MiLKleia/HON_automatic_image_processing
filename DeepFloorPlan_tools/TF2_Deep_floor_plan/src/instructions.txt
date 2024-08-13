@@ -9,9 +9,12 @@
 
 // Takes images from 'images' folder and return results in 'outputs' folder.
 // get rooms, a rooom only train model log folder need to be rename log_room
-    python3 -m dfp.folder_deploy --postprocess --colorize
+    python3 -m dfp.folder_deploy 
+// or
+    python3 -m dfp.folder_deploy --clean
+
 // get walls, a wall only train model log folder need to be rename log_wall
-    python3 -m dfp.folder_deploy --postprocess --colorize --wall True
+    python3 -m dfp.folder_deploy --wall
 
 If training get both room and wall on 1 model, see deploy and adapt from there.
 
