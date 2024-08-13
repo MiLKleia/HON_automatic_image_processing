@@ -1,0 +1,35 @@
+// Those are the added or modify file, check https://github.com/zcemycl/TF2DeepFloorplan to get all the code
+
+//Training : [the .tfreccords mus be found in src folder. should be name data.tfreccords]
+    python3 -m dfp.train --batchsize=4 --lr=5e-4 --epochs=10 --logdir=log/store --modeldir=model/store
+// When done, run :
+    python3 -m dfp.convert2tflite --loadmethod 'pb' 
+
+
+
+// Takes images from 'images' folder and return results in 'outputs' folder.
+// get rooms, a rooom only train model log folder need to be rename log_room
+    python3 -m dfp.folder_deploy --postprocess --colorize
+// get walls, a wall only train model log folder need to be rename log_wall
+    python3 -m dfp.folder_deploy --postprocess --colorize --wall True
+
+If training get both room and wall on 1 model, see deploy and adapt from there.
+
+info : 
+tensorboard --logdir=log/store
+
+
+
+#####################
+If you want only one image, in deply, change :
+
+            img = mpimg.imread(image)[:, :, :3]
+            shp = img.shape
+            img = tf.convert_to_tensor(img, dtype=tf.uint8)
+            img = tf.image.resize(img, [512, 512])
+            img = tf.cast(img, dtype=tf.float32)
+            img = tf.reshape(img, [-1, 512, 512, 3])
+            if tf.math.reduce_max(img) > 1.0:
+                img /= 255
+                
+For : TODO
