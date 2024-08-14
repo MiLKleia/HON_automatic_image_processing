@@ -16,7 +16,13 @@
 // get walls, a wall only train model log folder need to be rename log_wall
     python3 -m dfp.folder_deploy --wall
 
-If training get both room and wall on 1 model, see deploy and adapt from there.
+
+// get room and walls
+    python3 -m dfp.folder_deploy --multi
+// or 
+    python3 -m dfp.folder_deploy --multi --clean
+    
+If training get both room and wall with 1 model, change both path line 134 to 141 to be the same
 
 info : 
 tensorboard --logdir=log/store
@@ -24,7 +30,7 @@ tensorboard --logdir=log/store
 
 
 #####################
-If you want only one image, in deply, change :
+If you want only one image, in deploy.py, change :
 
             img = mpimg.imread(image)[:, :, :3]
             shp = img.shape
@@ -35,4 +41,17 @@ If you want only one image, in deply, change :
             if tf.math.reduce_max(img) > 1.0:
                 img /= 255
                 
-For : TODO
+For : 
+#ADD ON TOP IF MISSING
+from .data import preprocess_deploy 
+             
+            [...]            
+            
+            img = cv.imread(image)
+            img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+            shp = img.shape
+            img = cv.resize(img, (512,512))
+            img = tf.convert_to_tensor(img, dtype=tf.uint8)
+            img = preprocess_deploy(img) #USE THE ONE WE MADE, NOT FROM OG CODE
+            
+

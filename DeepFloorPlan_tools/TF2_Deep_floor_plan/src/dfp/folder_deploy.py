@@ -30,6 +30,7 @@ floorplan_boundary_map = {
     2: [255, 255, 255],  # wall line
 }
 
+
 def predict(
     model: tf.keras.Model, img: tf.Tensor, shp: np.ndarray
 ) -> Tuple[tf.Tensor, tf.Tensor]:
@@ -80,51 +81,39 @@ def post_process_wall( bd_ind: np.ndarray, shp: np.ndarray):
     return new_bd_ind
     
     
-def post_process_room(rm_ind, bd_ind, shp, CLEAN = False):
-    
-    
+def post_process_room(rm_ind, bd_ind, shp, CLEAN = False, MULTI = False):
     if CLEAN : ## SLOW
-    
-        hard_c = (bd_ind > 0).astype(np.uint8)
-        # region from room prediction
-        rm_mask = np.zeros(rm_ind.shape)
-        rm_mask[rm_ind > 0] = 1
-        # region from close wall line
-        cw_mask = hard_c
-        # regine close wall mask by filling the gap between bright line
-        cw_mask = fill_break_line(cw_mask)
-        cw_mask = np.reshape(cw_mask, (*shp[:2], -1))
-        fuse_mask = cw_mask + rm_mask
-        fuse_mask[fuse_mask >= 1] = 255
-
+        fuse_mask = np.zeros(rm_ind.shape)
+        fuse_mask[rm_ind > 0] = 255
         fuse_mask = flood_fill(fuse_mask)
 
         new_rm_ind = fill_fuse_mask(fuse_mask.reshape(*shp[:2]), rm_ind.reshape(*shp[:2]))
-    
-        room_final = ind2rgb(new_rm_ind.reshape(*shp[:2]))
+        
+        bd_ind.reshape(*shp[:2], -1)
+        bd_ind = bd_ind[:,:,0]
     else : 
-        room_final = ind2rgb(rm_ind.reshape(*shp[:2]))
+        new_rm_ind = rm_ind
+        
+    if MULTI : 
+        new_rm_ind[bd_ind == 2.] = 10.
+        new_rm_ind[bd_ind == 1.] = 9.
+    room_final = ind2rgb(new_rm_ind.reshape(*shp[:2]))
     return room_final
 
 def fill_fuse_mask(fuse, rm_ind):
-    value = 1
     fuse = fuse.astype('uint8')
     out = fuse
     u, v = rm_ind.shape[:2]
-    for i in range(u):
-        for j in range(v):
-            if fuse[i, j] == 255 : 
-                mask = np.zeros(rm_ind.shape[:2])
-                fuse = skimage.segmentation.flood_fill(fuse, (i, j), value)
-                mask[fuse == value] = 1
-                
-                temp = np.multiply(mask, rm_ind)
-                uni, counts = np.unique(temp, return_counts=True)
-                room = uni[np.argwhere(counts == np.max(counts[1:]))]
-                
-                out[fuse == value] = int(room)
-                value += 1
-                
+    while len(np.unique(fuse))>1:
+        coordinate = np.argwhere(fuse == 255)
+        i, j = coordinate[0]
+        temp = rm_ind.copy()
+        fuse = skimage.segmentation.flood_fill(fuse, (i, j), 127)
+        temp[fuse != 127] = 0   
+        uni, counts = np.unique(temp, return_counts=True)
+        room = uni[np.argwhere(counts == np.max(counts[1:]))]
+        out[fuse == 127] = int(room)
+        fuse[fuse < 128] = 0 
     return out.astype('float32')
                 
     
@@ -150,7 +139,7 @@ def main(config: argparse.Namespace) -> np.ndarray:
         model_room = tf.lite.Interpreter(model_path=path)
         model_room.allocate_tensors()
         path_wall = "log_wall" + os.sep + "store" + os.sep + "model.tflite"
-        model_wall = tf.lite.Interpreter(model_path=path)
+        model_wall = tf.lite.Interpreter(model_path=path_wall)
         model_wall.allocate_tensors()
 
     
@@ -160,7 +149,6 @@ def main(config: argparse.Namespace) -> np.ndarray:
     for root, dirs, files in os.walk(config.images, topdown=False):
         for name in files:  
             image = os.path.join(root, name)
-            
  
             img = cv.imread(image)
             img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
@@ -171,32 +159,34 @@ def main(config: argparse.Namespace) -> np.ndarray:
             img = preprocess_deploy(img)
              
             if config.wall :
-                input_details = model_wall.get_input_details()
-                output_details = model_wall.get_output_details()
-                model_wall.set_tensor(input_details[0]["index"], img)
+                input_details_wall = model_wall.get_input_details()
+                output_details_wall = model_wall.get_output_details()
+                model_wall.set_tensor(input_details_wall[0]["index"], img)
                 model_wall.invoke()
                 _, cwi = 0, 1
                 if config.tfmodel == "func":
                     ri, cwi = 1, 0
-                logits_cw = model_wall.get_tensor(output_details[cwi]["index"])
-                logits_cw = tf.convert_to_tensor(logits_cw)
-                logits_cw = tf.image.resize(logits_cw, shp[:2])
-                cw = convert_one_hot_to_image(logits_cw)[0].numpy()
-                out = post_process_wall( cw, shp)
-
-            else :
-                input_details = model_wall.get_input_details()
-                output_details = model_wall.get_output_details()
-                model_wall.set_tensor(input_details[0]["index"], img)
-                model_wall.invoke()
-                _, cwi = 0, 1
-                if config.tfmodel == "func":
-                    _, cwi = 1, 0
-                logits_cw = model_wall.get_tensor(output_details[cwi]["index"])
+                logits_cw = model_wall.get_tensor(output_details_wall[cwi]["index"])
                 logits_cw = tf.convert_to_tensor(logits_cw)
                 logits_cw = tf.image.resize(logits_cw, shp[:2])
                 cw = convert_one_hot_to_image(logits_cw)[0].numpy()
                 
+
+                out = post_process_wall(cw, shp)
+
+            else :
+                input_details_wall = model_wall.get_input_details()
+                output_details_wall = model_wall.get_output_details()
+                model_wall.set_tensor(input_details_wall[0]["index"], img)
+                model_wall.invoke()
+                _, cwi = 0, 1
+                if config.tfmodel == "func":
+                    ri, cwi = 1, 0
+                logits_cw = model_wall.get_tensor(output_details_wall[cwi]["index"])
+                logits_cw = tf.convert_to_tensor(logits_cw)
+                logits_cw = tf.image.resize(logits_cw, shp[:2])
+                cw = convert_one_hot_to_image(logits_cw)[0].numpy()
+
                 input_details = model_room.get_input_details()
                 output_details = model_room.get_output_details()
                 model_room.set_tensor(input_details[0]["index"], img)
@@ -209,8 +199,10 @@ def main(config: argparse.Namespace) -> np.ndarray:
     
                 logits_r = tf.image.resize(logits_r, shp[:2])
                 r = convert_one_hot_to_image(logits_r)[0].numpy()
+                
 
-                out = post_process_room(r, cw, shp, config.clean)
+
+                out = post_process_room(r, cw, shp, config.clean, config.multi)
 
             mpimg.imsave(os.path.join(config.save_folder, name), out.astype(np.uint8))
 
@@ -225,6 +217,7 @@ def parse_args(args: List[str]) -> argparse.Namespace:
     p.add_argument("--images", type=str, default="images")
     p.add_argument("--wall", action="store_true")
     p.add_argument("--clean",action="store_true")
+    p.add_argument("--multi",action="store_true")
     p.add_argument("--save_folder", type=str, default="outputs")
     p.add_argument(
         "--feature-channels",
