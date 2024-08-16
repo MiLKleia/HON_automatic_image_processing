@@ -1,0 +1,20 @@
+# Example usage: python train.py --data own_data.yaml
+# parent
+# ├── yolov5
+# └── datasets
+#     └── mine  
+
+path: ../datasets/coco128 # dataset root dir
+train: images/exemple
+val: images/exemple
+test: # test images (optional) 
+
+# Classes
+names:
+  0: car
+  1: house
+  2: moon
+
+
+# Download script/URL (optional)
+#download: https://ultralytics.com/assets/
