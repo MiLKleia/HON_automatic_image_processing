@@ -91,7 +91,7 @@ This function uses cleaned images from  images/ML_cropped/Roll_NUM. Run :
 Images are saved in images/extract_contours/Roll_NUM
 
 
-
+# UI
 ## Set Function
 
 install tkinter and run :
@@ -106,13 +106,7 @@ Before runnig processing.py, csv files for both function need to exist in the fu
 
 Select an image using "Images/Choisir image de test" and either click on "afficher image" or "Images/prévisualiser la dernière fonction" to observe results you can except using the last plot function.
 
-## UI
-Run :
-
-        automatic_processing_UI.py
-It allows you to do every thing you could do with processin.py, but it's easier to use. You can also select differnt pat as OG images and YOLO model than what was imposed using processing.py. For HEPIA collaborator, see the associated report for more infos.
-
-# Clean, Crop, Erase and Extract with UI
+## Clean, Crop, Erase and Extract with UI
 
 In order to do the same actions as the one explained in part 2 with minimal use of the terminal, run 
 
